@@ -124,17 +124,21 @@ Requests can be made by using the `fetch(url[, config, [callback]])` method of P
 ```javascript
 import pinch from 'react-native-pinch';
 
+  var body = {
+            username:"admin",
+            password:"123456",
+        };
 pinch.fetch('https://my-api.com/v1/endpoint', {
   method: 'post',
   headers: { customHeader: 'customValue' },
-  body: '{"firstName": "Jake", "lastName": "Moxey"}',
-  timeoutInterval: 10000 // timeout after 10 seconds
+  body:JSON.stringify(body),
+  timeoutInterval: 10000, // timeout after 10 seconds
   sslPinning: {
     cert: 'cert-file-name', // cert file name without the `.cer`
     certs: ['cert-file-name-1', 'cert-file-name-2'], // optionally specify multiple certificates
   }
 })
-  .then(res => console.log(`We got your response! Response - ${res}`))
+  .then(res => console.log(`We got your response! Response - ${res.bodyString}`))
   .catch(err => console.log(`Whoopsy doodle! Error - ${err}`))
 ```
 
@@ -146,7 +150,7 @@ pinch.fetch('https://my-api.com/v1/endpoint', {
   method: 'post',
   headers: { customHeader: 'customValue' },
   body: '{"firstName": "Jake", "lastName": "Moxey"}',
-  timeoutInterval: 10000 // timeout after 10 seconds
+  timeoutInterval: 10000, // timeout after 10 seconds
   sslPinning: {
     cert: 'cert-file-name', // cert file name without the `.cer`
     certs: ['cert-file-name-1', 'cert-file-name-2'], // optionally specify multiple certificates
@@ -156,7 +160,7 @@ pinch.fetch('https://my-api.com/v1/endpoint', {
     console.error(`Whoopsy doodle! Error - ${err}`);
     return null;
   }
-  console.log(`We got your response! Response - ${res}`);
+  console.log(`We got your response! Response - ${res.bodyString}`);
 })
 ```
 
@@ -169,7 +173,7 @@ pinch.fetch('https://my-api.com/v1/endpoint', {
   method: 'post',
   headers: { customHeader: 'customValue' },
   body: '{"firstName": "Jake", "lastName": "Moxey"}',
-  timeoutInterval: 10000 // timeout after 10 seconds
+  timeoutInterval: 10000, // timeout after 10 seconds
   sslPinning: {} // omit the `cert` or `certs` key, `sslPinning` can be ommited as well
 })
 ```
