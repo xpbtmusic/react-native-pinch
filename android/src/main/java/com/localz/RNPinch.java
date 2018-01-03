@@ -2,6 +2,7 @@ package com.localz;
 
 import android.os.AsyncTask;
 import android.support.annotation.RequiresPermission;
+import android.text.TextUtils;
 import android.util.Log;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageInfo;
@@ -89,7 +90,7 @@ public class RNPinch extends ReactContextBaseJavaModule {
                 HttpRequest request = new HttpRequest(endpoint[0]);
 
                 if (opts.hasKey(OPT_BODY_KEY)) {
-                    request.body = opts.getString(OPT_BODY_KEY);
+                    request.body = opts.getString(OPT_BODY_KEY);;
                 }
                 if (opts.hasKey(OPT_METHOD_KEY)) {
                     request.method = opts.getString(OPT_METHOD_KEY);
@@ -98,7 +99,7 @@ public class RNPinch extends ReactContextBaseJavaModule {
                     request.headers = JsonUtil.convertReadableMapToJson(opts.getMap(OPT_HEADER_KEY));
                 }
                 if (opts.hasKey(OPT_SSL_PINNING_KEY)) {
-                    String fileName = opts.getMap(OPT_SSL_PINNING_KEY).getString("cert");
+                    String fileName = opts.getMap(OPT_SSL_PINNING_KEY).getString("cert");;
                     if (fileName != null) {
                         request.certFilenames = new String[]{fileName};
                     } else {
@@ -114,8 +115,12 @@ public class RNPinch extends ReactContextBaseJavaModule {
                     request.timeout = opts.getInt(OPT_TIMEOUT_KEY);
                 }
 
-                HttpResponse httpResponse = httpUtil.sendHttpRequest(request);
-
+                HttpResponse httpResponse =null;
+                if(!TextUtils.isEmpty(request.endpoint)&&request.endpoint.startsWith("http:")){
+                    httpResponse = httpUtil.sendHttpRequestForHttp(request);
+                }else if(!TextUtils.isEmpty(request.endpoint)&&request.endpoint.startsWith("https:")){
+                    httpResponse = httpUtil.sendHttpRequest(request);
+                }
                 response.putInt("status", httpResponse.statusCode);
                 response.putString("statusText", httpResponse.statusText);
                 response.putString("bodyString", httpResponse.bodyString);

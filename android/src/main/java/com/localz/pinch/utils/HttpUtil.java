@@ -1,5 +1,6 @@
 package com.localz.pinch.utils;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.facebook.react.bridge.Arguments;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
@@ -56,8 +58,33 @@ public class HttpUtil {
 
         return jsonHeaders;
     }
+    private WritableMap getResponseHeaders(HttpURLConnection connection) {
+        WritableMap jsonHeaders = Arguments.createMap();
+        Map<String, List<String>> headerMap = connection.getHeaderFields();
 
+        for (Map.Entry<String, List<String>> entry : headerMap.entrySet()) {
+            if (entry.getKey() != null) {
+                jsonHeaders.putString(entry.getKey(), entry.getValue().get(0));
+            }
+        }
+
+        return jsonHeaders;
+    }
     private HttpsURLConnection prepareRequestHeaders(HttpsURLConnection connection, JSONObject headers) throws JSONException {
+        connection.setRequestProperty("Content-Type", DEFAULT_CONTENT_TYPE);
+        connection.setRequestProperty("Accept", DEFAULT_CONTENT_TYPE);
+
+        if (headers != null) {
+            Iterator<String> iterator = headers.keys();
+            while (iterator.hasNext()) {
+                String nextKey = iterator.next();
+                connection.setRequestProperty(nextKey, headers.get(nextKey).toString());
+            }
+        }
+
+        return connection;
+    }
+    private HttpURLConnection prepareRequestHeaders(HttpURLConnection connection, JSONObject headers) throws JSONException {
         connection.setRequestProperty("Content-Type", DEFAULT_CONTENT_TYPE);
         connection.setRequestProperty("Accept", DEFAULT_CONTENT_TYPE);
 
@@ -93,7 +120,8 @@ public class HttpUtil {
 
         if (request.body != null && (method.equals("POST") || method.equals("PUT") || method.equals("DELETE"))) {
             // Set the content length of the body.
-            connection.setRequestProperty("Content-length", request.body.getBytes().length + "");
+            Log.e("request body",request.body);
+            connection.setRequestProperty("Content-length", request.body.getBytes("UTF-8").length + "");
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setUseCaches(false);
@@ -106,8 +134,46 @@ public class HttpUtil {
 
         return connection;
     }
+    private HttpURLConnection prepareRequestForHttp(HttpRequest request)
+            throws IOException, KeyStoreException, CertificateException, KeyManagementException, NoSuchAlgorithmException, JSONException {
+        HttpURLConnection connection;
+        URL url = new URL(request.endpoint);
+        String method = request.method.toUpperCase();
 
+        connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod(method);
+
+        connection = prepareRequestHeaders(connection, request.headers);
+
+        connection.setRequestProperty("Accept-Charset", "UTF-8");
+        connection.setAllowUserInteraction(false);
+        connection.setConnectTimeout(request.timeout);
+        connection.setReadTimeout(request.timeout);
+
+        if (request.body != null && (method.equals("POST") || method.equals("PUT") || method.equals("DELETE"))) {
+            // Set the content length of the body.
+            Log.e("request body",request.body);
+            connection.setRequestProperty("Content-length", request.body.getBytes("UTF-8").length + "");
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setUseCaches(false);
+
+            // Send the JSON as body of the request.
+            OutputStream outputStream = connection.getOutputStream();
+            outputStream.write(request.body.getBytes("UTF-8"));
+            outputStream.close();
+        }
+
+        return connection;
+    }
     private InputStream prepareResponseStream(HttpsURLConnection connection) throws IOException {
+        try {
+            return connection.getInputStream();
+        } catch (IOException e) {
+            return connection.getErrorStream();
+        }
+    }
+    private InputStream prepareResponseStream(HttpURLConnection connection) throws IOException {
         try {
             return connection.getInputStream();
         } catch (IOException e) {
@@ -144,4 +210,34 @@ public class HttpUtil {
             }
         }
     }
+    public HttpResponse sendHttpRequestForHttp(HttpRequest request)
+            throws IOException, KeyStoreException, CertificateException, KeyManagementException, NoSuchAlgorithmException, JSONException {
+        InputStream responseStream = null;
+        HttpResponse response = new HttpResponse();
+        HttpURLConnection connection;
+        int status;
+        String statusText;
+
+        try {
+            connection = prepareRequest(request);
+
+            connection.connect();
+
+            status = connection.getResponseCode();
+            statusText = connection.getResponseMessage();
+            responseStream = prepareResponseStream(connection);
+
+            response.statusCode = status;
+            response.statusText = statusText;
+            response.bodyString = getResponseBody(responseStream);
+            response.headers = getResponseHeaders(connection);
+
+            return response;
+        } finally {
+            if (responseStream != null) {
+                responseStream.close();
+            }
+        }
+    }
+
 }
