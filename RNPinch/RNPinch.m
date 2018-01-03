@@ -113,6 +113,8 @@ RCT_EXPORT_METHOD(fetch:(NSString *)url obj:(NSDictionary *)obj callback:(RCTRes
         if (obj[@"timeoutInterval"]) {
           [request setTimeoutInterval:[obj[@"timeoutInterval"] doubleValue] / 1000];
         }
+        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
         if (obj[@"headers"] && [obj[@"headers"] isKindOfClass:[NSDictionary class]]) {
             NSMutableDictionary *m = [obj[@"headers"] mutableCopy];
             for (NSString *key in [m allKeys]) {
