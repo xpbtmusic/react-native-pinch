@@ -128,9 +128,13 @@ import pinch from 'react-native-pinch';
             username:"admin",
             password:"123456",
         };
+  let token='123333333333333';
+   let headers = {
+              'Authorization':token
+   }
 pinch.fetch('https://my-api.com/v1/endpoint', {
   method: 'post',
-  headers: { customHeader: 'customValue' },
+  headers: headers,
   body:JSON.stringify(body),
   timeoutInterval: 10000, // timeout after 10 seconds
   sslPinning: {
@@ -145,10 +149,13 @@ pinch.fetch('https://my-api.com/v1/endpoint', {
 ### Using Callbacks
 ```javascript
 import pinch from 'react-native-pinch';
-
+let token='123333333333333';
+   let headers = {
+              'Authorization':token
+   }
 pinch.fetch('https://my-api.com/v1/endpoint', {
   method: 'post',
-  headers: { customHeader: 'customValue' },
+  headers: headers,
   body: '{"firstName": "Jake", "lastName": "Moxey"}',
   timeoutInterval: 10000, // timeout after 10 seconds
   sslPinning: {
@@ -168,10 +175,13 @@ pinch.fetch('https://my-api.com/v1/endpoint', {
 
 ```javascript
 import pinch from 'react-native-pinch';
-
+ let token='123333333333333';
+ let headers = {
+            'Authorization':token
+ }
 pinch.fetch('https://my-api.com/v1/endpoint', {
   method: 'post',
-  headers: { customHeader: 'customValue' },
+  headers: headers,
   body: '{"firstName": "Jake", "lastName": "Moxey"}',
   timeoutInterval: 10000, // timeout after 10 seconds
   sslPinning: {} // omit the `cert` or `certs` key, `sslPinning` can be ommited as well
