@@ -219,7 +219,7 @@ public class HttpUtil {
         String statusText;
 
         try {
-            connection = prepareRequest(request);
+            connection = prepareRequestForHttp(request);
 
             connection.connect();
 
