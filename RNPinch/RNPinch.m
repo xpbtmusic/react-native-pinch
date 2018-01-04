@@ -117,7 +117,11 @@ RCT_EXPORT_METHOD(fetch:(NSString *)url obj:(NSDictionary *)obj callback:(RCTRes
         [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
         if (obj[@"headers"] && [obj[@"headers"] isKindOfClass:[NSDictionary class]]) {
             NSMutableDictionary *m = [obj[@"headers"] mutableCopy];
-            for (NSString *key in [m allKeys]) {
+            for (NSString *key in m) {
+                if([[key lowercaseString]isEqualToString:@"authorization"]){
+                    m[key]=[@"Token " stringByAppendingString: m[key] ];
+                    printf("%s -------------------------------\n",[m[key] UTF8String]);
+                }
                 if (![m[key] isKindOfClass:[NSString class]]) {
                     m[key] = [m[key] stringValue];
                 }
