@@ -78,7 +78,11 @@ public class HttpUtil {
             Iterator<String> iterator = headers.keys();
             while (iterator.hasNext()) {
                 String nextKey = iterator.next();
-                connection.setRequestProperty(nextKey, headers.get(nextKey).toString());
+                 if(!TextUtils.isEmpty(nextKey)&&nextKey.toLowerCase().equals("authorization")){
+                                   connection.setRequestProperty(nextKey, "Token "+headers.get(nextKey).toString());
+                 }else {
+                        connection.setRequestProperty(nextKey,headers.get(nextKey).toString());
+                       }
             }
         }
 
@@ -92,7 +96,11 @@ public class HttpUtil {
             Iterator<String> iterator = headers.keys();
             while (iterator.hasNext()) {
                 String nextKey = iterator.next();
-                connection.setRequestProperty(nextKey, headers.get(nextKey).toString());
+                  if(!TextUtils.isEmpty(nextKey)&&nextKey.toLowerCase().equals("authorization")){
+                      connection.setRequestProperty(nextKey, "Token "+headers.get(nextKey).toString());
+                  }else {
+                      connection.setRequestProperty(nextKey,headers.get(nextKey).toString());
+                      }
             }
         }
 
