@@ -2,6 +2,10 @@ package com.localz.pinch.models;
 
 import org.json.JSONObject;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class HttpRequest {
     public String endpoint;
     public String method;
@@ -9,6 +13,8 @@ public class HttpRequest {
     public String body;
     public String[] certFilenames;
     public int timeout;
+    public ArrayList<File> files;
+    public JSONObject params;
 
     private static final int DEFAULT_TIMEOUT = 10000;
 

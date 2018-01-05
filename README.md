@@ -119,7 +119,27 @@ Before you can make requests using SSL pinning, you first need to add your `.cer
 *Examples are using the ES6 standard*
 
 Requests can be made by using the `fetch(url[, config, [callback]])` method of Pinch.
-
+### upload file(s) and text
+```javascript
+   var body = {
+            title:'title'
+        };
+     pinch.fetch('http://api.nohttp.net/upload', {
+            method: 'post',
+            //headers:headers,
+            body:JSON.stringify(body),
+            upload: {
+                files: ['/storage/emulated/0/Download/111314.png','/storage/emulated/0/Download/111313.png']
+            },
+            //params:{'title':'title','body':'body'},
+            timeoutInterval: 10000, // timeout after 10 seconds
+            sslPinning: {
+                cert: 'sdfsd'
+            }
+        })
+            .then(res => console.log(`We got your response! Response - ${res.bodyString})`))
+            .catch(err => console.log(`Whoopsy doodle! Error - ${JSON.stringify(err)}`))
+```
 ### Using Promises
 ```javascript
 import pinch from 'react-native-pinch';
@@ -128,13 +148,9 @@ import pinch from 'react-native-pinch';
             username:"admin",
             password:"123456",
         };
-  let token='123333333333333';
-   let headers = {
-              'Authorization':token
-   }
 pinch.fetch('https://my-api.com/v1/endpoint', {
   method: 'post',
-  headers: headers,
+  headers: { customHeader: 'customValue' },
   body:JSON.stringify(body),
   timeoutInterval: 10000, // timeout after 10 seconds
   sslPinning: {
@@ -149,13 +165,10 @@ pinch.fetch('https://my-api.com/v1/endpoint', {
 ### Using Callbacks
 ```javascript
 import pinch from 'react-native-pinch';
-let token='123333333333333';
-   let headers = {
-              'Authorization':token
-   }
+
 pinch.fetch('https://my-api.com/v1/endpoint', {
   method: 'post',
-  headers: headers,
+  headers: { customHeader: 'customValue' },
   body: '{"firstName": "Jake", "lastName": "Moxey"}',
   timeoutInterval: 10000, // timeout after 10 seconds
   sslPinning: {
@@ -175,13 +188,10 @@ pinch.fetch('https://my-api.com/v1/endpoint', {
 
 ```javascript
 import pinch from 'react-native-pinch';
- let token='123333333333333';
- let headers = {
-            'Authorization':token
- }
+
 pinch.fetch('https://my-api.com/v1/endpoint', {
   method: 'post',
-  headers: headers,
+  headers: { customHeader: 'customValue' },
   body: '{"firstName": "Jake", "lastName": "Moxey"}',
   timeoutInterval: 10000, // timeout after 10 seconds
   sslPinning: {} // omit the `cert` or `certs` key, `sslPinning` can be ommited as well

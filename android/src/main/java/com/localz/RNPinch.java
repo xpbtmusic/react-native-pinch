@@ -27,11 +27,13 @@ import com.localz.pinch.utils.JsonUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 
 public class RNPinch extends ReactContextBaseJavaModule {
 
@@ -40,7 +42,7 @@ public class RNPinch extends ReactContextBaseJavaModule {
     private static final String OPT_BODY_KEY = "body";
     private static final String OPT_SSL_PINNING_KEY = "sslPinning";
     private static final String OPT_TIMEOUT_KEY = "timeoutInterval";
-
+    private static final String OPT_FILES_KEY = "upload";
     private HttpUtil httpUtil;
     private String packageName = null;
     private String displayName = null;
@@ -98,6 +100,15 @@ public class RNPinch extends ReactContextBaseJavaModule {
                 if (opts.hasKey(OPT_HEADER_KEY)) {
                     request.headers = JsonUtil.convertReadableMapToJson(opts.getMap(OPT_HEADER_KEY));
                 }
+                if (opts.hasKey(OPT_FILES_KEY)) {
+                    ReadableArray filesPathStrings = opts.getMap(OPT_FILES_KEY).getArray("files");
+                    ArrayList<File> files = new ArrayList<File>();
+                    for (int i = 0; i < filesPathStrings.size(); i++) {
+                        files.add( new File(filesPathStrings.getString(i)));
+                    }
+                    request.files = files;
+                }
+
                 if (opts.hasKey(OPT_SSL_PINNING_KEY)) {
                     String fileName = opts.getMap(OPT_SSL_PINNING_KEY).getString("cert");;
                     if (fileName != null) {
