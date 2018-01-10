@@ -1,6 +1,6 @@
 # Pinch 👌
 
-Callback and promise based HTTP client that supports SSL pinning for React Native.
+Callback and promise based HTTP client that supports SSL pinning and upload files and text for React Native(ios and android).
 
 ## Installation
 
