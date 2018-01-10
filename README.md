@@ -120,7 +120,7 @@ Before you can make requests using SSL pinning, you first need to add your `.cer
 *Examples are using the ES6 standard*
 
 Requests can be made by using the `fetch(url[, config, [callback]])` method of Pinch.
-### upload file(s) and text
+### upload file(s) and text for android and ios
 ```javascript
    var body = {
             title:'title'
