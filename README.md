@@ -101,7 +101,8 @@ include ':app'
     }
   }
 ```
-
+## 覆盖 node_modules
+下载github 文件，覆盖 node_modules下的 react-native-pinch文件夹
 ## Adding certificates
 
 Before you can make requests using SSL pinning, you first need to add your `.cer` files to your project's assets.
