@@ -128,11 +128,77 @@ RCT_EXPORT_METHOD(fetch:(NSString *)url obj:(NSDictionary *)obj callback:(RCTRes
             }
             [request setAllHTTPHeaderFields:m];
         }
-        if (obj[@"body"]) {
+        if (obj[@"body"]&&(!obj[@"upload"]||(obj[@"upload"]&&!obj[@"upload"][@"files"]))) {
             NSData *data = [obj[@"body"] dataUsingEncoding:NSUTF8StringEncoding];
             [request setHTTPBody:data];
         }
     }
+    if(obj && obj[@"upload"]&&obj[@"upload"][@"files"]){
+         NSMutableData *data = [NSMutableData data];
+        NSString *boundary = multipartFormBoundary();
+       NSString *name = [[NSString alloc] init];
+
+        name=@"image";
+        int count=-1;
+          //upload params
+        if (obj[@"body"]){
+            //for (NSString *object in obj[@"body"]){
+            NSData *jsonData = [obj[@"body"] dataUsingEncoding:NSUTF8StringEncoding];
+
+             NSDictionary  *retDict = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:NULL];
+            if(retDict){
+                for(NSString *key in retDict){
+                    NSLog(@"%@------0000-------%@----",key,retDict[key]);
+
+                    //[data appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+                    NSString *bodyStr_ = [NSString stringWithFormat:@"\r\n--%@\r\n", boundary];
+                    [data appendData:[bodyStr_ dataUsingEncoding:NSUTF8StringEncoding]];
+                    NSString *bodyStr = [NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"",key];
+                    [data appendData:[bodyStr dataUsingEncoding:NSUTF8StringEncoding]];
+                    [data appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+                    [data appendData:[@"Content-Type:text/plain" dataUsingEncoding:NSUTF8StringEncoding]];
+                    [data appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+                    [data appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+                    [data appendData:[retDict[key] dataUsingEncoding:NSUTF8StringEncoding]];
+
+                    //[data appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+                }
+
+            }
+
+
+        }
+       //upload file(s)
+        for (NSString *filePath in obj[@"upload"][@"files"]){
+            NSLog(@"%@------888-----------",filePath);
+            count++;
+            NSString *bodyStr = [NSString stringWithFormat:@"\r\n--%@\r\n", boundary];
+            [data appendData:[bodyStr dataUsingEncoding:NSUTF8StringEncoding]];
+            NSArray *pathStrings = [filePath componentsSeparatedByString:@"/"];
+            int length=(int)pathStrings.count;
+
+            NSString *fileName = pathStrings[length-1];
+            NSLog(@"%@------999-----------",fileName);
+            bodyStr = [NSString stringWithFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\" \r\n", name, fileName];
+            [data appendData:[bodyStr dataUsingEncoding:NSUTF8StringEncoding]];
+            [data appendData:[@"Content-Type: application/octet-stream\r\n\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+
+            [data appendData:[NSData dataWithContentsOfFile:filePath]];
+
+            [data appendData:[@"\r\n" dataUsingEncoding:NSUTF8StringEncoding]];
+        }
+        NSString *tailStr = [NSString stringWithFormat:@"--%@--\r\n", boundary];
+        [data appendData:[tailStr dataUsingEncoding:NSUTF8StringEncoding]];
+
+
+        request.HTTPBody = data;
+
+        NSString *headerString = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
+        [request setValue:headerString forHTTPHeaderField:@"Content-Type"];
+
+    }
+    //NSLog(@"%@-----------------",obj[@"upload"][@"files"][0]);
+
     if (obj && obj[@"sslPinning"] && obj[@"sslPinning"][@"cert"]) {
         NSURLSessionSSLPinningDelegate *delegate = [[NSURLSessionSSLPinningDelegate alloc] initWithCertNames:@[obj[@"sslPinning"][@"cert"]]];
         session = [NSURLSession sessionWithConfiguration:self.sessionConfig delegate:delegate delegateQueue:[NSOperationQueue mainQueue]];
@@ -169,5 +235,7 @@ RCT_EXPORT_METHOD(fetch:(NSString *)url obj:(NSDictionary *)obj callback:(RCTRes
 
     [dataTask resume];
 }
-
+static NSString * multipartFormBoundary() {
+    return [NSString stringWithFormat:@"Boundary+%08X%08X", arc4random(), arc4random()];
+}
 @end
