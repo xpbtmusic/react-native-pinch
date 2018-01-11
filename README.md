@@ -122,24 +122,59 @@ Before you can make requests using SSL pinning, you first need to add your `.cer
 Requests can be made by using the `fetch(url[, config, [callback]])` method of Pinch.
 ### upload file(s) and text for android and ios
 ```javascript
-   var body = {
-            title:'title'
+import ImagePicker from 'react-native-image-crop-picker';
+    ImagePicker.openPicker({
+            multiple: true
+        }).then(images => {
+            console.log(JSON.stringify(images));
+            let arrays=[];
+            if(Platform.OS==='ios'){
+                for(let i=0;i<images.length;i++){
+                    let  url=images[i].sourceURL;
+                    let array=url.split('///');
+                    console.log(array[1]);
+                    arrays.push(array[1])
+                }
+            }else if(Platform.OS==='android'){
+                for(let i=0;i<images.length;i++){
+                    let  url=images[i].path;
+                    let array=url.split('//');
+                    console.log(array[1]);
+                    arrays.push(array[1])
+                }
+            }
+
+            this.uploadFiles(arrays);
+        });
+    uploadFiles(files_){
+        var body = {
+            title:'title',
+            title2:'title2',
+            title3:'title3',
         };
-     pinch.fetch('http://api.nohttp.net/upload', {
+  
+        let token='75670fe42df38b0db2d4ddd565a0dee253d2545f';
+        let headers = {
+            'Authorization':token
+        }
+        pinch.fetch('http://api.nohttp.net/upload', {
             method: 'post',
             //headers:headers,
             body:JSON.stringify(body),
             upload: {
-                files: ['/storage/emulated/0/Download/111314.png','/storage/emulated/0/Download/111313.png']
+                //files: ['/Users/xupeng/Documents/111313.png','/Users/xupeng/Documents//111312.png'] ios
+                //files: ['/storage/emulated/0/Download/111314.png','/storage/emulated/0/Download/111313.png'] //android
+                files:files_
             },
             //params:{'title':'title','body':'body'},
-            timeoutInterval: 10000, // timeout after 10 seconds
+            timeoutInterval: 10000*5, // timeout after 10 seconds
             sslPinning: {
-                cert: 'sdfsd'
+                cert: 'ctyun'
             }
         })
             .then(res => console.log(`We got your response! Response - ${res.bodyString})`))
             .catch(err => console.log(`Whoopsy doodle! Error - ${JSON.stringify(err)}`))
+    }
 ```
 ### Using Promises
 ```javascript
